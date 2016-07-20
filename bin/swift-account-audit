@@ -140,6 +140,7 @@ class Auditor(object):
             print >>open(self.error_file, 'a'), path
         self.objects_checked += 1
 
+    #name是container的名字
     def audit_container(self, account, name, recurse=False):
         if (account, name) in self.in_progress:
             self.in_progress[(account, name)].wait()
@@ -229,6 +230,7 @@ class Auditor(object):
         print 'Auditing account "%s"' % account
         consistent = True
         path = '/%s' % account
+        #获取account所在节点
         part, nodes = self.account_ring.get_nodes(account)
         responses = {}
         for node in nodes:
@@ -237,11 +239,15 @@ class Auditor(object):
             while results:
                 node_id = node['id']
                 try:
+                    #创建HTTP连接，默认使用json格式，调用get方式
                     conn = http_connect(node['ip'], node['port'],
                                         node['device'], part, 'GET', path, {},
                                         'format=json&marker=%s' %
                                         quote(marker.encode('utf-8')))
+                    #接收返回结果
                     resp = conn.getresponse()
+
+                    #如果返回结果不是以2xx开头，说明出错了
                     if resp.status // 100 != 2:
                         self.account_not_found += 1
                         consistent = False
