@@ -1050,6 +1050,7 @@ class Request(object):
             self.environ.get('SCRIPT_NAME', '') + self.environ['PATH_INFO'],
             minsegs, maxsegs, rest_with_last)
 
+    #获取消息长度，如果tranfer-encoding设置成了chunked，content-length就变的不可用了，无法获得消息长度
     def message_length(self):
         """
         Properly determine the message length for this request. It will return
