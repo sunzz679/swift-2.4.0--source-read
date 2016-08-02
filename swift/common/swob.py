@@ -121,6 +121,7 @@ MAX_RANGES = 50
 class _UTC(tzinfo):
     """
     A tzinfo class for datetime objects that returns a 0 timedelta (UTC time)
+    UTC: coordinated Universal Time，协调世界时间
     """
     def dst(self, dt):
         return timedelta(0)
@@ -743,6 +744,7 @@ def _req_environ_property(environ_field):
     """
     Set and retrieve value of the environ_field entry in self.environ.
     (Used by both request and response)
+    environ_field可以使get post put等等
     """
     def getter(self):
         return self.environ.get(environ_field, None)
@@ -844,11 +846,14 @@ class Request(object):
         environ = environ or {}
         if isinstance(path, unicode):
             path = path.encode('utf-8')
+
+        #根据path获取一个元祖(scheme, netloc, path, parameters, query, fragment)
         parsed_path = urlparse.urlparse(path)
         server_name = 'localhost'
         if parsed_path.netloc:
             server_name = parsed_path.netloc.split(':', 1)[0]
 
+        #判断端口号和协议类型
         server_port = parsed_path.port
         if server_port is None:
             server_port = {'http': 80,
@@ -894,6 +899,10 @@ class Request(object):
     @property
     def params(self):
         "Provides QUERY_STRING parameters as a dictionary"
+        #比如QUERY_STRING为"username=sunzz&password=123"
+        #那么urlparse.parse_qsl(self.environ['QUERY_STRING'], True)会将输入解析成[('username', 'sunzz'), ('password', '123')]
+        #然后在封装成字典{'username': 'sunzz', 'password': '123'}
+        #True表示如果QUERY_STRING为若干个空格是，仍然进行解析，最终形式为{'  ': ''}，如果为False,最终结果是{}
         if self._params_cache is None:
             if 'QUERY_STRING' in self.environ:
                 self._params_cache = dict(
@@ -924,7 +933,7 @@ class Request(object):
         """The path of the request, without host but with query string."""
         path = self.path
         if self.query_string:
-            path += '?' + self.query_string
+            path += '?' + self.query_string  #把请求参数加上
         return path
 
     @property
