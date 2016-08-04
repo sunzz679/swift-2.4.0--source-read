@@ -227,9 +227,11 @@ class HeaderEnvironProxy(UserDict.DictMixin):
     For example, headers['Content-Range'] sets and gets the value of
     headers.environ['HTTP_CONTENT_RANGE']
     """
+    #在headers.environ中所有key都是大写，并且大都以HTTP_开头，所以需要将key转换成这种格式
     def __init__(self, environ):
         self.environ = environ
 
+    #类似将Host变成HTTP_HOST
     def _normalize(self, key):
         key = 'HTTP_' + key.replace('-', '_').upper()
         if key == 'HTTP_CONTENT_LENGTH':
@@ -270,6 +272,7 @@ class HeaderKeyDict(dict):
     A dict that title-cases all keys on the way in, so as to be
     case-insensitive.
     """
+    #header中的key大小写不敏感
     def __init__(self, base_headers=None, **kwargs):
         if base_headers:
             self.update(base_headers)
@@ -682,6 +685,7 @@ class Accept(object):
            r')(' + extension + r'*?\s*)$')
     acc_pattern = re.compile(acc)
 
+    #headerval可以是json、xml或者是plain
     def __init__(self, headerval):
         self.headerval = headerval
 
@@ -724,6 +728,8 @@ class Accept(object):
 
         :param options: a list of content-types the server can respond with
         """
+        #acc.best_match(['text/plain', 'application/json',
+        #               'application/xml', 'text/xml'])
         try:
             types = self._get_types()
         except ValueError:
@@ -931,6 +937,7 @@ class Request(object):
     @property
     def path_qs(self):
         """The path of the request, without host but with query string."""
+        #如果输入127.0.0.1:9090，此函数返回/
         path = self.path
         if self.query_string:
             path += '?' + self.query_string  #把请求参数加上
@@ -939,6 +946,9 @@ class Request(object):
     @property
     def path(self):
         "Provides the full path of the request, excluding the QUERY_STRING"
+        #提供的路径不包含请求参数
+        # 如果输入127.0.0.1:9090/a/b，此函数返回/a/b
+        # 如果输入127.0.0.1:9090/a/b?user=sunzz&password=123，此函数返回/a/b
         return urllib2.quote(self.environ.get('SCRIPT_NAME', '') +
                              self.environ['PATH_INFO'])
 
@@ -950,6 +960,7 @@ class Request(object):
         This can be useful when constructing a path to send to a backend
         server, as that path will need everything after the "/v1".
         """
+        #如果输入127.0.0.1:9090/v1/account/container/object?temp_url_sig=12345,此函数输出/account/container/object
         _ver, entity_path = self.split_path(1, 2, rest_with_last=True)
         if entity_path is not None:
             return '/' + entity_path
@@ -972,6 +983,7 @@ class Request(object):
         path_info, and appends it to the script_name.  Returns
         the path segment.
         """
+        # 如果输入127.0.0.1:9090/v1/account/container/object?temp_url_sig=12345,此函数输出/v1
         path_info = self.path_info
         if not path_info or path_info[0] != '/':
             return None
