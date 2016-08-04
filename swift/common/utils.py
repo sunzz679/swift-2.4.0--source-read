@@ -158,6 +158,7 @@ def get_hmac(request_method, path, expires, key):
 
     :returns: hexdigest str of the HMAC-SHA1 for the request.
     """
+    #HMAC: hash-based message authentication code,利用hash算法，以一个密钥和一个消息作为输入，生成一个消息摘要作为输出
     return hmac.new(
         key, '%s\n%s\n%s' % (request_method, expires, path), sha1).hexdigest()
 
