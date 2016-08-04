@@ -2,6 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$USER_HOME$/Desktop/对象存储资料/keystone-8.0.0/.idea/keystone-8.0.0.iml" filepath="$USER_HOME$/Desktop/对象存储资料/keystone-8.0.0/.idea/keystone-8.0.0.iml" />
+      <module fileurl="file://$USER_HOME$/PycharmProjects/nose1/.idea/nose1.iml" filepath="$USER_HOME$/PycharmProjects/nose1/.idea/nose1.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/swift-2.4.0.iml" filepath="$PROJECT_DIR$/.idea/swift-2.4.0.iml" />
     </modules>
   </component>
