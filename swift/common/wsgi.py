@@ -432,6 +432,7 @@ def run_server(conf, logger, sock, global_conf=None):
             wsgi.server(sock, app, wsgi_logger, custom_pool=pool,
                         capitalize_response_headers=False)
         else:
+            #启动服务
             wsgi.server(sock, app, wsgi_logger, custom_pool=pool)
     except socket.error as err:
         if err[0] != errno.EINVAL:
