@@ -246,12 +246,16 @@ class Application(object):
     def get_controller(self, req):
         """
         Get the controller to handle a request.
+        获得一个请求的控制器
 
         :param req: the request
         :returns: tuple of (controller class, path dictionary)
 
         :raises: ValueError (thrown by split_path) if given invalid path
         """
+
+        #如果请求为/info{?swiftinfo_sig,swiftinfo_expires}这种格式
+        #表示请求的是一些info,所以会调用InfoController
         if req.path == '/info':
             d = dict(version=None,
                      expose_info=self.expose_info,
@@ -259,15 +263,21 @@ class Application(object):
                      admin_key=self.admin_key)
             return InfoController, d
 
+        #获得具体信息
         version, account, container, obj = split_path(req.path, 1, 4, True)
         d = dict(version=version,
                  account_name=account,
                  container_name=container,
                  object_name=obj)
+
+        #account存在但是version不对，目前version只能是v1或者是v1.0
         if account and not valid_api_version(version):
             raise APIVersionError('Invalid path')
+
+        #如果path中account, container和object都存在，返回的是object的controller
         if obj and container and account:
             info = get_container_info(req.environ, self)
+            #获得container的存储策略，共有三种策略，在配置文件swift.conf中有，可以去查看
             policy_index = req.headers.get('X-Backend-Storage-Policy-Index',
                                            info['storage_policy'])
             policy = POLICIES.get_by_index(policy_index)
@@ -283,10 +293,16 @@ class Application(object):
                 # error and hopefully temporary.
                 raise HTTPServiceUnavailable('Unknown Storage Policy')
             return self.obj_controller_router[policy], d
+
+        #如果path中只包含account和container，则返回container的controller
         elif container and account:
             return ContainerController, d
+
+        #如果path只存在account，则返回account的controller
         elif account and not container and not obj:
             return AccountController, d
+
+        #都没有，返回None
         return None, d
 
     def __call__(self, env, start_response):
@@ -300,7 +316,11 @@ class Application(object):
         try:
             if self.memcache is None:
                 self.memcache = cache_from_env(env, True)
+
+            #更新headers的x-auth-token部分
             req = self.update_request(Request(env))
+
+            #根据path的不同请求返回不同的controller
             return self.handle_request(req)(env, start_response)
         except UnicodeError:
             err = HTTPPreconditionFailed(
@@ -311,6 +331,7 @@ class Application(object):
                            [('Content-Type', 'text/plain')])
             return ['Internal server error.\n']
 
+    #在实际应用中，x-storage-token和x-auth-token是一样的
     def update_request(self, req):
         if 'x-storage-token' in req.headers and \
                 'x-auth-token' not in req.headers:
@@ -321,17 +342,21 @@ class Application(object):
         """
         Entry point for proxy server.
         Should return a WSGI-style callable (such as swob.Response).
+        如何处理swob类型的请求
 
         :param req: swob.Request object
         """
         try:
             self.logger.set_statsd_prefix('proxy-server')
+
+            #如果content-length小于等于零，报错
             if req.content_length and req.content_length < 0:
                 self.logger.increment('errors')
                 return HTTPBadRequest(request=req,
                                       body='Invalid Content-Length')
 
             try:
+                #如果path的编码不是utf-8格式，报错
                 if not check_utf8(req.path_info):
                     self.logger.increment('errors')
                     return HTTPPreconditionFailed(
