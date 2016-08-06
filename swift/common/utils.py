@@ -117,7 +117,7 @@ class InvalidHashPathConfigError(ValueError):
         return "[swift-hash]: both swift_hash_path_suffix and " \
             "swift_hash_path_prefix are missing from %s" % SWIFT_CONF_FILE
 
-
+# 判断用户是否配置了hash的suffix和prefix
 def validate_hash_conf():
     global HASH_PATH_SUFFIX
     global HASH_PATH_PREFIX
@@ -145,6 +145,7 @@ except InvalidHashPathConfigError:
     pass
 
 
+# 利用SHA1算法生成一个消息摘要
 def get_hmac(request_method, path, expires, key):
     """
     Returns the hexdigest string of the HMAC-SHA1 (RFC 2104) for
