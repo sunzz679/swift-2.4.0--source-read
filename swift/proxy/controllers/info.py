@@ -23,6 +23,7 @@ from swift.common.swob import HTTPOk, HTTPForbidden, HTTPUnauthorized
 
 class InfoController(Controller):
     """WSGI controller for info requests"""
+    """主要是获取一些比如swift版本，staticweb, tmpurl等信息"""
     server_type = 'Info'
 
     def __init__(self, app, version, expose_info, disallowed_sections,
