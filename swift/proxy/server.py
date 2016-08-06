@@ -209,7 +209,8 @@ class Application(object):
         # those between the proxy servers and the other internal servers.
         #
         # ** Because it affects the client as well, currently, we use the
-        # client chunk size as the govenor and not the object chunk size.
+        # client chunk size as the governor and not the object chunk size.
+        #设置socket读写的buffer大小，以配置文件中的chunk大小为准
         socket._fileobject.default_bufsize = self.client_chunk_size
         self.expose_info = config_true_value(
             conf.get('expose_info', 'yes'))
@@ -450,6 +451,7 @@ class Application(object):
         # In the case of timing sorting, shuffling ensures that close timings
         # (ie within the rounding resolution) won't prefer one over another.
         # Python's sort is stable (http://wiki.python.org/moin/HowTo/Sorting/)
+        #将节点进行洗牌，默认方法为随机洗牌，可以指定按照时间顺序排列
         shuffle(nodes)
         if self.sorting_method == 'timing':
             now = time()
