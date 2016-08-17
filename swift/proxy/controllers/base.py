@@ -1195,6 +1195,7 @@ class Controller(object):
         """
         # Use the additional headers first so they don't overwrite the headers
         # we require.
+        #优先使用additional
         headers = HeaderKeyDict(additional) if additional else HeaderKeyDict()
         if transfer:
             self.transfer_headers(orig_req.headers, headers)
