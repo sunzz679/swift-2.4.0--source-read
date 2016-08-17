@@ -975,6 +975,7 @@ class Request(object):
         return self.host_url + self.path_qs
 
     def as_referer(self):
+        #格式大致为POST http://www.sugon.com/hi/there
         return self.method + ' ' + self.url
 
     def path_info_pop(self):

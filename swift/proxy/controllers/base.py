@@ -1081,6 +1081,7 @@ class GetOrHeadHandler(ResumingGetter):
         ct = source.getheader('Content-Type')
         if ct:
             content_type, content_type_attrs = parse_content_type(ct)
+            #判断此请求是否为多段下载
             is_multipart = content_type == 'multipart/byteranges'
         else:
             is_multipart = False
@@ -1536,6 +1537,7 @@ class Controller(object):
                                    client_chunk_size=client_chunk_size)
         res = handler.get_working_response(req)
 
+        #从多个server中获取相应，选取一个作为最优相应
         if not res:
             res = self.best_response(
                 req, handler.statuses, handler.reasons, handler.bodies,

@@ -3227,6 +3227,7 @@ def parse_content_type(content_type):
     :param content_type: content_type to parse
     :returns: a tuple containing (content type, list of k, v parameter tuples)
     """
+    #content_type：大致为text/plain parm_list大致为[('charset, 'UTF-8'), ('level', '1')]
     parm_list = []
     if ';' in content_type:
         content_type, parms = content_type.split(';', 1)
