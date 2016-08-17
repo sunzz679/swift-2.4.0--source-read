@@ -34,6 +34,7 @@ class AccountController(Controller):
 
     def __init__(self, app, account_name, **kwargs):
         Controller.__init__(self, app)
+        #将ascii形式的字符转换成unicode形式字符，url解码
         self.account_name = unquote(account_name)
         if not self.app.allow_account_management:
             self.allowed_methods.remove('PUT')
