@@ -322,6 +322,7 @@ class Application(object):
             req = self.update_request(Request(env))
 
             #根据path的不同请求返回不同的controller
+            #最终会调用swob.Response.__call__方法处理这个wsig
             return self.handle_request(req)(env, start_response)
         except UnicodeError:
             err = HTTPPreconditionFailed(
@@ -368,6 +369,7 @@ class Application(object):
                     request=req, body='Invalid UTF8 or contains NULL')
 
             try:
+                #根据req获得不同的handler和path_parts
                 controller, path_parts = self.get_controller(req)
                 p = req.path_info
                 if isinstance(p, unicode):
@@ -401,6 +403,7 @@ class Application(object):
             controller.trans_id = req.environ['swift.trans_id']
             self.logger.client_ip = get_remote_client(req)
             try:
+                #这个handler是具体的某一个controller内部的GET，PUT方法等，比如说account.py类中的GET方法
                 handler = getattr(controller, req.method)
                 getattr(handler, 'publicly_accessible')
             except AttributeError:

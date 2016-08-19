@@ -61,6 +61,8 @@ class AccountController(Controller):
 
         partition = self.app.account_ring.get_part(self.account_name)
         node_iter = self.app.iter_nodes(self.app.account_ring, partition)
+
+        #通过req获取一个swob形式的response对象, 发送请求到远程对象服务上并调用具体方法来处理请求信息
         resp = self.GETorHEAD_base(
             req, _('Account'), node_iter, partition,
             req.swift_entity_path.rstrip('/'))

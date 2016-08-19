@@ -118,8 +118,11 @@ def split_and_validate_path(request, minsegs=1, maxsegs=None,
     :raises: HTTPBadRequest if something's not okay
     """
     try:
+        #把request的path取出来,比如/v1/account1/container1/object2
+        #segs为切割好的列表
         segs = split_path(unquote(request.path),
                           minsegs, maxsegs, rest_with_last)
+        #判断device和partition是否合法，在parastorHTTP开发中暂时屏蔽掉
         validate_device_partition(segs[0], segs[1])
         return segs
     except ValueError as err:

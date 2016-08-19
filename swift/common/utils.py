@@ -947,7 +947,7 @@ def renamer(old, new, fsync=True):
 def split_path(path, minsegs=1, maxsegs=None, rest_with_last=False):
     """
     Validate and split the given HTTP request path.
-
+    minsegs切割单位， maxsegs为切割的个数
     **Examples**::
 
         ['a'] = split_path('/a')

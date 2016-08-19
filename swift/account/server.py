@@ -166,6 +166,7 @@ class AccountController(BaseStorageServer):
     @timing_stats()
     def HEAD(self, req):
         """Handle HTTP HEAD request."""
+        """HEAD请求返回account的基本信息，并以key-value的形式保存在HTTPHEAD中返回"""
         drive, part, account = split_and_validate_path(req, 3)
         out_content_type = get_listing_content_type(req)
         if self.mount_check and not check_mount(self.root, drive):

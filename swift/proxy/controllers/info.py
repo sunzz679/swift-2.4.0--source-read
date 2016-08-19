@@ -98,6 +98,7 @@ class InfoController(Controller):
             headers['Access-Control-Expose-Headers'] = ', '.join(
                 ['x-trans-id'])
 
+        #json.dumps(dict)可以将字典形式的dict对象转换为json格式的对象
         info = json.dumps(get_swift_info(
             admin=admin_request, disallowed_sections=self.disallowed_sections))
 

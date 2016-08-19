@@ -379,6 +379,7 @@ class AccountBroker(DatabaseBroker):
         :param delimiter: delimiter for query
 
         :returns: list of tuples of (name, object_count, bytes_used, 0)
+        返回account下container的基本信息，tuples形式形式
         """
         delim_force_gte = False
         (marker, end_marker, prefix, delimiter) = utf8encode(

@@ -750,6 +750,7 @@ class ResumingGetter(object):
         :param src: the response from the backend
         :returns: True if found, False if not
         """
+        #能够连接成功就是好的的source
         if self.server_type == 'Object' and src.status == 416:
             return True
         return is_success(src.status) or is_redirection(src.status)
@@ -974,11 +975,14 @@ class ResumingGetter(object):
         node_timeout = self.app.node_timeout
         if self.server_type == 'Object' and not self.newest:
             node_timeout = self.app.recoverable_node_timeout
+
+        #node = {'ip': '1.2.3.4', 'port': 6000, 'device': 'sda'}
         for node in self.node_iter:
             if node in self.used_nodes:
                 continue
             start_node_timing = time.time()
             try:
+                #获得对一个node的连接，conn是一个HTTPConnection object
                 with ConnectionTimeout(self.app.conn_timeout):
                     conn = http_connect(
                         node['ip'], node['port'], node['device'],
@@ -988,6 +992,7 @@ class ResumingGetter(object):
                 self.app.set_node_timing(node, time.time() - start_node_timing)
 
                 with Timeout(node_timeout):
+                    #这就是source的原型，HTTPConnection.getresponse
                     possible_source = conn.getresponse()
                     # See NOTE: swift_conn at top of file about this.
                     possible_source.swift_conn = conn
@@ -997,6 +1002,8 @@ class ResumingGetter(object):
                     _('Trying to %(method)s %(path)s') %
                     {'method': self.req_method, 'path': self.req_path})
                 continue
+
+            #如果possible_source能够连接成功
             if self.is_good_source(possible_source):
                 # 404 if we know we don't have a synced copy
                 if not float(possible_source.getheader('X-PUT-Timestamp', 1)):
@@ -1103,12 +1110,25 @@ class GetOrHeadHandler(ResumingGetter):
             (add_content_type(pi) for pi in parts_iter),
             boundary, is_multipart, self.app.logger)
 
+    """
+    1. 获得source
+    2. 获得response
+    3. 根据source的内容更新response的内容
+        3.1 更新response的status
+        3.2 更新response的items
+        3.3 更新response的etag
+        3.4 更新response的除('date', 'content-length', 'content-type','connection',
+                'x-put-timestamp', 'x-delete-after')之外的所有属性
+    4. 返回response
+    """
     def get_working_response(self, req):
+        #source是一个HTTPResponse类型的对象
         source, node = self._get_source_and_node()
         res = None
         if source:
             res = Response(request=req)
             res.status = source.status
+            #将source的header更新到res中
             update_headers(res, source.getheaders())
             if req.method == 'GET' and \
                     source.status in (HTTP_OK, HTTP_PARTIAL_CONTENT):

@@ -189,7 +189,7 @@ def http_connect(ipaddr, port, device, partition, method, path,
 
     :param ipaddr: IPv4 address to connect to
     :param port: port to connect to
-    :param device: device of the node to query
+    :param device: device of the node to query,比如sda，这是一种接口的硬盘
     :param partition: partition on the device
     :param method: HTTP method to request ('GET', 'PUT', 'POST', etc.)
     :param path: request path
@@ -198,6 +198,7 @@ def http_connect(ipaddr, port, device, partition, method, path,
     :param ssl: set True if SSL should be used (default: False)
     :returns: HTTPConnection object
     """
+    #判断编码格式
     if isinstance(path, unicode):
         try:
             path = path.encode("utf-8")
@@ -208,11 +209,19 @@ def http_connect(ipaddr, port, device, partition, method, path,
             device = device.encode("utf-8")
         except UnicodeError as e:
             logging.exception(_('Error encoding to UTF-8: %s'), str(e))
+
     path = quote('/' + device + '/' + str(partition) + path)
     return http_connect_raw(
         ipaddr, port, method, path, headers, query_string, ssl)
 
+"""
+bufferedhttp.http_connect_raw(
+                '127.0.0.1', 8080, 'GET', '/',
+                headers={'x-one': '1', 'x-two': 2, 'x-three': 3.0,
+                         'x-four': {'crazy': 'value'}}, ssl=True)
+"""
 
+#调用此方法是需要手动自定headers
 def http_connect_raw(ipaddr, port, method, path, headers=None,
                      query_string=None, ssl=False):
     """
@@ -238,6 +247,8 @@ def http_connect_raw(ipaddr, port, method, path, headers=None,
     if query_string:
         path += '?' + query_string
     conn.path = path
+    #putrequest需要手动添加header，如果不添加会报错，而request可以自动添加空的header
+    #手动添加header如下面代码所示，conn.putheaders, conn.endheaders
     conn.putrequest(method, path, skip_host=(headers and 'Host' in headers))
     if headers:
         for header, value in headers.items():
