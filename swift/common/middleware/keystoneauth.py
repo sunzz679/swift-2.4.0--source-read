@@ -218,6 +218,7 @@ class KeystoneAuth(object):
             if self.reseller_admin_role in user_roles:
                 environ['reseller_request'] = True
         else:
+            #1 入口的位置，匿名认证，也就是不提供认证信息
             self.logger.debug('Authorizing as anonymous')
             environ['swift.authorize'] = self.authorize_anonymous
 
@@ -515,6 +516,7 @@ class KeystoneAuth(object):
         return self.denied_response(req)
 
     def authorize_anonymous(self, req):
+        #2 执行匿名认证
         """
         Authorize an anonymous request.
 
